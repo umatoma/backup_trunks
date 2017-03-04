@@ -1,5 +1,5 @@
-hash: 4e1694a5eca23f4edf227fd292dd9db905101829a9c153eb0dd9988b38829fbb
-updated: 2017-03-03T20:40:39.089233784+09:00
+hash: cf45e13c781326d9fe300a3722237a8847e80270f7941368f2b7aff28e7136b4
+updated: 2017-03-04T11:15:35.259373169+09:00
 imports:
 - name: github.com/bradfitz/gomemcache
   version: 2fafb84a66c4911e11a8f50955b01e74fe3ab9c5
@@ -24,6 +24,8 @@ imports:
   version: c55201b036063326c5b1b89ccfe45a184973d073
 - name: github.com/streadway/amqp
   version: d75c3a341ff43309ad0cb69ac8bdbd1d8772775f
+- name: github.com/tsenart/vegeta
+  version: 7cff4dc0ed44f0a8b9777caf050950eb67972f43
 - name: gopkg.in/mgo.v2
   version: 3f83fa5005286a7fe593b055f0d7771a7dce4655
   subpackages:

@@ -9,3 +9,5 @@ import:
   - redis
 - package: gopkg.in/redsync.v1
   version: ^1.0.1
+- package: github.com/tsenart/vegeta
+  version: ^6.1.1
