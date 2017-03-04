@@ -1,0 +1,11 @@
+package: github.com/umatoma/trunks
+import:
+- package: github.com/RichardKnop/machinery
+  subpackages:
+  - v1
+- package: github.com/garyburd/redigo
+  version: ^1.0.0
+  subpackages:
+  - redis
+- package: gopkg.in/redsync.v1
+  version: ^1.0.1
