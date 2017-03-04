@@ -18,14 +18,6 @@ var (
 	worker *machinery.Worker
 )
 
-func Add(args ...int64) (int64, error) {
-	sum := int64(0)
-	for _, arg := range args {
-		sum += arg
-	}
-	return sum, nil
-}
-
 func init() {
 	flag.Parse()
 
@@ -40,7 +32,8 @@ func init() {
 		log.Fatalln("Failed to initialize server", err)
 	}
 
-	server.RegisterTask("add", Add)
+	server.RegisterTask("add", TaskAdd)
+	server.RegisterTask("attack", TaskAttack)
 
 	worker = server.NewWorker("test_worker")
 }

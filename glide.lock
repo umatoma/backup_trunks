@@ -1,5 +1,5 @@
 hash: cf45e13c781326d9fe300a3722237a8847e80270f7941368f2b7aff28e7136b4
-updated: 2017-03-04T11:15:35.259373169+09:00
+updated: 2017-03-04T11:24:31.129011391+09:00
 imports:
 - name: github.com/bradfitz/gomemcache
   version: 2fafb84a66c4911e11a8f50955b01e74fe3ab9c5
@@ -24,8 +24,19 @@ imports:
   version: c55201b036063326c5b1b89ccfe45a184973d073
 - name: github.com/streadway/amqp
   version: d75c3a341ff43309ad0cb69ac8bdbd1d8772775f
+- name: github.com/streadway/quantile
+  version: b0c588724d25ae13f5afb3d90efec0edc636432b
 - name: github.com/tsenart/vegeta
   version: 7cff4dc0ed44f0a8b9777caf050950eb67972f43
+  subpackages:
+  - lib
+- name: golang.org/x/net
+  version: b4690f45fa1cafc47b1c280c2e75116efe40cc13
+  subpackages:
+  - http2
+  - http2/hpack
+  - idna
+  - lex/httplex
 - name: gopkg.in/mgo.v2
   version: 3f83fa5005286a7fe593b055f0d7771a7dce4655
   subpackages:

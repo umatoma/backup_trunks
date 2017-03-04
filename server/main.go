@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"encoding/json"
 
 	machinery "github.com/RichardKnop/machinery/v1"
 	"github.com/RichardKnop/machinery/v1/config"
@@ -42,18 +43,41 @@ func init() {
 	redisClient = NewRedisClient(host, password, socketPath, db)
 }
 
+type AttackTarget struct {
+	Method string `json:"method"`
+	URL string `json:"url"`
+	Body string `json:"body"`
+	Headers map[string][]string `json:"headers"`
+}
+
 func main() {
 	fmt.Println("Hello World")
 
+	tgt := []AttackTarget{
+		AttackTarget{
+			Method: "GET",
+			URL: "http://localhost/",
+			Body: "",
+		},
+	}
+	jsonTgt, err := json.Marshal(&tgt)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	task := signatures.TaskSignature{
-		Name: "add",
+		Name: "attack",
 		Args: []signatures.TaskArg{
 			signatures.TaskArg{
-				Type: "int64",
+				Type: "string",
+				Value: string(jsonTgt),
+			},
+			signatures.TaskArg{
+				Type: "uint64",
 				Value: 1,
 			},
 			signatures.TaskArg{
-				Type: "int64",
+				Type: "uint64",
 				Value: 2,
 			},
 		},
