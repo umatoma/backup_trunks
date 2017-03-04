@@ -2,13 +2,17 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
+	"bytes"
+	"os"
+	"io"
 	"encoding/json"
+	"encoding/base64"
 
 	machinery "github.com/RichardKnop/machinery/v1"
 	"github.com/RichardKnop/machinery/v1/config"
 	"github.com/RichardKnop/machinery/v1/signatures"
+	vegeta "github.com/tsenart/vegeta/lib"
 )
 
 var (
@@ -51,8 +55,6 @@ type AttackTarget struct {
 }
 
 func main() {
-	fmt.Println("Hello World")
-
 	tgt := []AttackTarget{
 		AttackTarget{
 			Method: "GET",
@@ -94,12 +96,39 @@ func main() {
 	if err != nil {
 		log.Fatalln("Getting task state failed with error", err)
 	}
-	fmt.Println(result.Interface())
-	fmt.Println(asyncResult.Signature.UUID)
 
-	uuids, err := redisClient.GetAllTaskUUIDs()
+	bytesResult, err := base64.StdEncoding.DecodeString(result.String())
 	if err != nil {
 		log.Fatalln(err)
 	}
-	fmt.Println(uuids)
+
+	var reporter vegeta.Reporter
+	var report vegeta.Report
+	// text reporter
+	// var metrics vegeta.Metrics
+	// reporter, report = vegeta.NewTextReporter(&metrics), &metrics
+
+	// plot reporter
+	var rs vegeta.Results
+	reporter, report = vegeta.NewPlotReporter("Vegeta Plot", &rs), &rs
+
+	decoder := vegeta.NewDecoder(bytes.NewReader(bytesResult))
+	for {
+		var r vegeta.Result
+		if err = decoder.Decode(&r); err != nil {
+			if err == io.EOF {
+				break
+			}
+			log.Fatalln(err)
+		}
+		report.Add(&r)
+	}
+
+	reporter.Report(os.Stdout)
+
+	// uuids, err := redisClient.GetAllTaskUUIDs()
+	// if err != nil {
+	// 	log.Fatalln(err)
+	// }
+	// log.Println(uuids)
 }

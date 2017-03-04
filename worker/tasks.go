@@ -1,10 +1,12 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"time"
 	"encoding/json"
+	"encoding/base64"
 	"net/http"
+	"bytes"
 
 	vegeta "github.com/tsenart/vegeta/lib"
 )
@@ -35,7 +37,6 @@ func TaskAttack(tgts string, rate, du uint64) (string, error) {
 			headers[k] = v
 		}
 
-		fmt.Println("target:", tgt.Method, tgt.URL)
 		target := &vegeta.Target{
 			Method: tgt.Method,
 			URL: tgt.URL,
@@ -46,23 +47,17 @@ func TaskAttack(tgts string, rate, du uint64) (string, error) {
 		vegetaTargets[i] = *target
 	}
 
-	fmt.Println(vegetaTargets)
 	targeter := vegeta.NewStaticTargeter(vegetaTargets...)
 	attacker := vegeta.NewAttacker()
 
-	var metrics vegeta.Metrics
+	var resBuffer bytes.Buffer
+	enc := vegeta.NewEncoder(&resBuffer)
 	for res := range attacker.Attack(targeter, rate, duration) {
-		fmt.Println("response:", res)
-		metrics.Add(res)
-	}
-	metrics.Close()
-
-	jsonMetrics, err := json.Marshal(metrics)
-	if err != nil {
-		return "", err
+		log.Println("response:", res)
+		enc.Encode(res)
 	}
 
-	return string(jsonMetrics), nil
+	return base64.StdEncoding.EncodeToString(resBuffer.Bytes()), nil
 }
 
 func TaskAdd(args ...int64) (int64, error) {
