@@ -56,7 +56,7 @@ func main() {
 	tgt := []AttackTarget{
 		AttackTarget{
 			Method: "GET",
-			URL: "http://localhost/",
+			URL: "http://localhost:8000/",
 			Body: "",
 		},
 	}
@@ -64,6 +64,8 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	rate := uint64(1)
+	duration := uint64(5)
 
 	task := signatures.TaskSignature{
 		Name: "attack",
@@ -74,11 +76,11 @@ func main() {
 			},
 			signatures.TaskArg{
 				Type: "uint64",
-				Value: 1,
+				Value: rate,
 			},
 			signatures.TaskArg{
 				Type: "uint64",
-				Value: 2,
+				Value: duration,
 			},
 		},
 	}

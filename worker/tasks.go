@@ -1,8 +1,8 @@
 package main
 
 import (
-	"log"
 	"fmt"
+	"time"
 	"encoding/json"
 	"net/http"
 
@@ -21,20 +21,21 @@ type AttackTarget struct {
 }
 
 // TaskAttack performs load test and returns the measurement results.
-func TaskAttack(tgts string, rate, duration uint64) (string, error) {
+func TaskAttack(tgts string, rate, du uint64) (string, error) {
+	duration := time.Duration(du) * time.Second
 	attackTargets := make([]AttackTarget, 0)
 	if err := json.Unmarshal([]byte(tgts), &attackTargets); err != nil {
-		log.Println(err)
+		return "", err
 	}
-	fmt.Println(attackTargets)
 
 	vegetaTargets := make([]vegeta.Target, len(attackTargets))
-	for _, tgt := range attackTargets {
+	for i, tgt := range attackTargets {
 		headers := http.Header{}
 		for k, v := range tgt.Headers {
 			headers[k] = v
 		}
 
+		fmt.Println("target:", tgt.Method, tgt.URL)
 		target := &vegeta.Target{
 			Method: tgt.Method,
 			URL: tgt.URL,
@@ -42,10 +43,26 @@ func TaskAttack(tgts string, rate, duration uint64) (string, error) {
 			Header: headers,
 		}
 
-		vegetaTargets = append(vegetaTargets, *target)
+		vegetaTargets[i] = *target
 	}
 
-	return "", nil
+	fmt.Println(vegetaTargets)
+	targeter := vegeta.NewStaticTargeter(vegetaTargets...)
+	attacker := vegeta.NewAttacker()
+
+	var metrics vegeta.Metrics
+	for res := range attacker.Attack(targeter, rate, duration) {
+		fmt.Println("response:", res)
+		metrics.Add(res)
+	}
+	metrics.Close()
+
+	jsonMetrics, err := json.Marshal(metrics)
+	if err != nil {
+		return "", err
+	}
+
+	return string(jsonMetrics), nil
 }
 
 func TaskAdd(args ...int64) (int64, error) {
