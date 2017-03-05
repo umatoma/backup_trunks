@@ -1,5 +1,5 @@
-hash: cf45e13c781326d9fe300a3722237a8847e80270f7941368f2b7aff28e7136b4
-updated: 2017-03-04T11:24:31.129011391+09:00
+hash: 29313e8b4447b762e86e728d6908facd1f676deeafdf6c146f07a92a731dbbdd
+updated: 2017-03-05T19:59:55.427938725+09:00
 imports:
 - name: github.com/bradfitz/gomemcache
   version: 2fafb84a66c4911e11a8f50955b01e74fe3ab9c5
@@ -10,6 +10,8 @@ imports:
   subpackages:
   - internal
   - redis
+- name: github.com/labstack/echo
+  version: 948d607539e92f3974d8f24951c8975d7342e24a
 - name: github.com/RichardKnop/machinery
   version: f1563577ba2e9eca34985c8bd8c4983a42a696e3
   subpackages:
@@ -27,7 +29,7 @@ imports:
 - name: github.com/streadway/quantile
   version: b0c588724d25ae13f5afb3d90efec0edc636432b
 - name: github.com/tsenart/vegeta
-  version: 7cff4dc0ed44f0a8b9777caf050950eb67972f43
+  version: 6c25889c3b6b6d22aa2a1edcb987b6846e44aa7d
   subpackages:
   - lib
 - name: golang.org/x/net

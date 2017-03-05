@@ -11,3 +11,5 @@ import:
   version: ^1.0.1
 - package: github.com/tsenart/vegeta
   version: ^6.1.1
+- package: github.com/labstack/echo
+  version: ^3.1.0-rc.1
