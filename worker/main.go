@@ -5,6 +5,8 @@ import (
 	"flag"
 	"log"
 
+	"github.com/umatoma/trunks/tasks"
+
 	machinery "github.com/RichardKnop/machinery/v1"
 	"github.com/RichardKnop/machinery/v1/config"
 )
@@ -32,8 +34,8 @@ func init() {
 		log.Fatalln("Failed to initialize server", err)
 	}
 
-	server.RegisterTask("add", TaskAdd)
-	server.RegisterTask("attack", TaskAttack)
+	server.RegisterTask("add", tasks.TaskAdd)
+	server.RegisterTask("attack", tasks.TaskAttack)
 
 	worker = server.NewWorker("test_worker")
 }

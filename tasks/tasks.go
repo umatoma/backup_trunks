@@ -1,4 +1,4 @@
-package main
+package tasks
 
 import (
 	"log"
@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"bytes"
 
+	"github.com/RichardKnop/machinery/v1/signatures"
 	vegeta "github.com/tsenart/vegeta/lib"
 )
 
@@ -22,6 +23,21 @@ type AttackTarget struct {
 	Headers map[string][]string `json:"headers"`
 }
 
+// GetVegetaTarget generates *vegeta.Target
+func (t *AttackTarget) GetVegetaTarget() (*vegeta.Target) {
+	headers := http.Header{}
+	for k, v := range t.Headers {
+		headers[k] = v
+	}
+
+	return &vegeta.Target{
+		Method: t.Method,
+		URL: t.URL,
+		Body: []byte(t.Body),
+		Header: headers,
+	}
+}
+
 // TaskAttack performs load test and returns the measurement results.
 func TaskAttack(tgts string, rate, du uint64) (string, error) {
 	duration := time.Duration(du) * time.Second
@@ -32,19 +48,7 @@ func TaskAttack(tgts string, rate, du uint64) (string, error) {
 
 	vegetaTargets := make([]vegeta.Target, len(attackTargets))
 	for i, tgt := range attackTargets {
-		headers := http.Header{}
-		for k, v := range tgt.Headers {
-			headers[k] = v
-		}
-
-		target := &vegeta.Target{
-			Method: tgt.Method,
-			URL: tgt.URL,
-			Body: []byte(tgt.Body),
-			Header: headers,
-		}
-
-		vegetaTargets[i] = *target
+		vegetaTargets[i] = *tgt.GetVegetaTarget()
 	}
 
 	targeter := vegeta.NewStaticTargeter(vegetaTargets...)
@@ -58,6 +62,33 @@ func TaskAttack(tgts string, rate, du uint64) (string, error) {
 	}
 
 	return base64.StdEncoding.EncodeToString(resBuffer.Bytes()), nil
+}
+
+// AttackTaskSignature generates signatures.TaskSignature
+func AttackTaskSignature(targets *[]AttackTarget, rate, duration uint64) (*signatures.TaskSignature, error) {
+	jsonTargets, err := json.Marshal(&targets)
+	if err != nil {
+		return nil, err
+	}
+
+	taskSignature := &signatures.TaskSignature{
+		Name: "attack",
+		Args: []signatures.TaskArg{
+			signatures.TaskArg{
+				Type: "string",
+				Value: string(jsonTargets),
+			},
+			signatures.TaskArg{
+				Type: "uint64",
+				Value: rate,
+			},
+			signatures.TaskArg{
+				Type: "uint64",
+				Value: duration,
+			},
+		},
+	}
+	return taskSignature, nil
 }
 
 func TaskAdd(args ...int64) (int64, error) {
