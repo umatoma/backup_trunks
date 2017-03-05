@@ -1,17 +1,38 @@
-hash: 29313e8b4447b762e86e728d6908facd1f676deeafdf6c146f07a92a731dbbdd
-updated: 2017-03-05T19:59:55.427938725+09:00
+hash: f343c6d444d0866cc777bb2964b7375b4ec3656efbd6f8f14f9581134bffaf0c
+updated: 2017-03-05T22:48:09.272928259+09:00
 imports:
 - name: github.com/bradfitz/gomemcache
   version: 2fafb84a66c4911e11a8f50955b01e74fe3ab9c5
   subpackages:
   - memcache
+- name: github.com/dgrijalva/jwt-go
+  version: 2268707a8f0843315e2004ee4f1d021dc08baedf
 - name: github.com/garyburd/redigo
   version: 8873b2f1995f59d4bcdd2b0dc9858e2cb9bf0c13
   subpackages:
   - internal
   - redis
+- name: github.com/go-playground/locales
+  version: 084b0226cf88d891a2bdeccac01d592af13a8f7b
+  subpackages:
+  - currency
+- name: github.com/go-playground/universal-translator
+  version: b32fa301c9fe55953584134cb6853a13c87ec0a1
 - name: github.com/labstack/echo
   version: 948d607539e92f3974d8f24951c8975d7342e24a
+  subpackages:
+  - middleware
+- name: github.com/labstack/gommon
+  version: e8995fb26e646187d33cff439b18609cfba23088
+  subpackages:
+  - bytes
+  - color
+  - log
+  - random
+- name: github.com/mattn/go-colorable
+  version: acb9493f2794fd0f820de7a27a217dafbb1b65ea
+- name: github.com/mattn/go-isatty
+  version: 9622e0cc9d8f9be434ca605520ff9a16808fee47
 - name: github.com/RichardKnop/machinery
   version: f1563577ba2e9eca34985c8bd8c4983a42a696e3
   subpackages:
@@ -32,13 +53,30 @@ imports:
   version: 6c25889c3b6b6d22aa2a1edcb987b6846e44aa7d
   subpackages:
   - lib
+- name: github.com/valyala/bytebufferpool
+  version: e746df99fe4a3986f4d4f79e13c1e0117ce9c2f7
+- name: github.com/valyala/fasttemplate
+  version: dcecefd839c4193db0d35b88ec65b4c12d360ab0
+- name: golang.org/x/crypto
+  version: 40541ccb1c6e64c947ed6f606b8a6cb4b67d7436
+  subpackages:
+  - acme
+  - acme/autocert
 - name: golang.org/x/net
   version: b4690f45fa1cafc47b1c280c2e75116efe40cc13
   subpackages:
+  - context
+  - context/ctxhttp
   - http2
   - http2/hpack
   - idna
   - lex/httplex
+- name: golang.org/x/sys
+  version: e48874b42435b4347fc52bdee0424a52abc974d7
+  subpackages:
+  - unix
+- name: gopkg.in/go-playground/validator.v9
+  version: 4bd19358521c53f09639f21e2a9d6883d6890f24
 - name: gopkg.in/mgo.v2
   version: 3f83fa5005286a7fe593b055f0d7771a7dce4655
   subpackages:

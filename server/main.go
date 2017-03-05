@@ -3,20 +3,34 @@ package main
 import (
 	"flag"
 	"log"
-	"os"
-	"encoding/base64"
-
-	"github.com/umatoma/trunks/tasks"
 
 	machinery "github.com/RichardKnop/machinery/v1"
 	"github.com/RichardKnop/machinery/v1/config"
+	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
+	validator "gopkg.in/go-playground/validator.v9"
 )
 
 var (
 	cnf config.Config
-	server *machinery.Server
+	jobQueueServer *machinery.Server
 	redisClient *RedisClient
 )
+
+// BodyValidator is custom body validator
+type BodyValidator struct {
+	validator *validator.Validate
+}
+
+// NewBodyValidator is constructor of BodyValidator
+func NewBodyValidator() *BodyValidator {
+	return &BodyValidator{validator: validator.New()}
+}
+
+// Validate is an interface of echo.Validator
+func (v *BodyValidator) Validate(i interface{}) error {
+	return v.validator.Struct(i)
+}
 
 func init() {
 	var (
@@ -30,9 +44,9 @@ func init() {
 	}
 
 	var err error
-	server, err = machinery.NewServer(&cnf)
+	jobQueueServer, err = machinery.NewServer(&cnf)
 	if err != nil {
-		log.Fatalln("Failed to initialize server", err)
+		log.Fatalln("Failed to initialize jobQueueServer", err)
 	}
 
 	var host, password, socketPath string
@@ -45,44 +59,15 @@ func init() {
 }
 
 func main() {
-	tgt := []tasks.AttackTarget{
-		tasks.AttackTarget{
-			Method: "GET",
-			URL: "http://localhost:8000/",
-			Body: "",
-		},
-	}
-	rate := uint64(1)
-	duration := uint64(5)
-	task, err := tasks.AttackTaskSignature(&tgt, rate, duration)
-	if err != nil {
+	e := echo.New()
+	e.Validator = NewBodyValidator()
+	e.Use(middleware.Logger())
+	e.GET("/", GetIndex)
+	e.GET("/tasks", GetTasks)
+	e.POST("/tasks", CreateTask)
+	e.GET("/tasks/:id", GetTask)
+
+	if err := e.Start(":3000"); err != nil {
 		log.Fatalln(err)
 	}
-
-	asyncResult, err := server.SendTask(task)
-	if err != nil {
-		log.Fatalln("Failed to send task", err)
-	}
-
-	result, err := asyncResult.Get()
-	if err != nil {
-		log.Fatalln("Getting task state failed with error", err)
-	}
-
-	bytesResult, err := base64.StdEncoding.DecodeString(result.String())
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	reporter, err := GetPlotReporter(&bytesResult)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	reporter.Report(os.Stdout)
-
-	// uuids, err := redisClient.GetAllTaskUUIDs()
-	// if err != nil {
-	// 	log.Fatalln(err)
-	// }
-	// log.Println(uuids)
 }

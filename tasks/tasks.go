@@ -17,8 +17,8 @@ type AttackerOption struct {}
 
 // AttackTarget is a HTTP request blueprint.
 type AttackTarget struct {
-	Method string `json:"method"`
-	URL string `json:"url"`
+	Method string `json:"method" validate:"required"`
+	URL string `json:"url" validate:"required"`
 	Body string `json:"body"`
 	Headers map[string][]string `json:"headers"`
 }
