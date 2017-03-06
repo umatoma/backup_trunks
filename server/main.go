@@ -65,7 +65,7 @@ func main() {
 	e.GET("/", GetIndex)
 	e.GET("/tasks", GetTasks)
 	e.POST("/tasks", CreateTask)
-	e.GET("/tasks/:id", GetTask)
+	e.GET("/tasks/:id/report/plot", GetTaskPlotRepot)
 
 	if err := e.Start(":3000"); err != nil {
 		log.Fatalln(err)

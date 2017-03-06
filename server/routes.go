@@ -76,7 +76,7 @@ func CreateTask(c echo.Context) error {
 }
 
 // GetTask handle GET /tasks/:id
-func GetTask(c echo.Context) error {
+func GetTaskPlotRepot(c echo.Context) error {
 	taskID := c.Param("id")
 	result, err := jobQueueServer.GetBackend().GetState(taskID)
 	if err != nil {
