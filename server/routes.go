@@ -1,20 +1,23 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"encoding/base64"
+	"encoding/json"
 	"bytes"
 
 	"github.com/umatoma/trunks/tasks"
 
+	"github.com/RichardKnop/machinery/v1/backends"
 	"github.com/labstack/echo"
 )
 
 // BodyCreateTask is body schema for CreateTask
 type BodyCreateTask struct {
-	Targets []tasks.AttackTarget	`json:"targets" validate:"required,dive,required"`
-	Rate uint64 									`json:"rate" validate:"required"`
-	Duration uint64 							`json:"duration" validate:"required"`
+	Targets []tasks.AttackTarget	`validate:"required,dive,required"`
+	Rate uint64 									`validate:"required"`
+	Duration uint64 							`validate:"required"`
 }
 
 // GetIndex handle GET /
@@ -24,11 +27,27 @@ func GetIndex(c echo.Context) error {
 
 // GetTasks handle GET /tasks
 func GetTasks(c echo.Context) error {
-	uuids, err := redisClient.GetAllTaskUUIDs()
+	reply, err := redisClient.GetAllTasks()
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusOK, uuids)
+
+	taskStates := make([]*backends.TaskState, len(reply))
+	for i, value := range reply {
+		bytes, ok := value.([]byte)
+		if !ok {
+			return c.String(http.StatusBadRequest, fmt.Sprintf("Expected byte array, instead got: %v", value))
+		}
+
+		taskState := new(backends.TaskState)
+		if err := json.Unmarshal(bytes, taskState); err != nil {
+			return c.String(http.StatusInternalServerError, err.Error())
+		}
+
+		taskStates[i] = taskState
+	}
+
+	return c.JSON(http.StatusOK, taskStates)
 }
 
 // CreateTask handle POST /tasks

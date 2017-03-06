@@ -17,10 +17,10 @@ type AttackerOption struct {}
 
 // AttackTarget is a HTTP request blueprint.
 type AttackTarget struct {
-	Method string `json:"method" validate:"required"`
-	URL string `json:"url" validate:"required"`
-	Body string `json:"body"`
-	Headers map[string][]string `json:"headers"`
+	Method string `validate:"required"`
+	URL string `validate:"required"`
+	Body string
+	Headers map[string][]string
 }
 
 // GetVegetaTarget generates *vegeta.Target

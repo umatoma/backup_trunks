@@ -26,16 +26,21 @@ func NewRedisClient(host, password, socketPath string, db int) *RedisClient {
 	}
 }
 
-func (cli *RedisClient) GetAllTaskUUIDs() ([]string, error) {
+func (cli *RedisClient) GetAllTasks() ([]interface{}, error) {
 	conn := cli.open()
 	defer conn.Close()
 
-	keys, err := redis.Strings(conn.Do("KEYS", "task_*"))
+	keysReply, err := redis.Values(conn.Do("KEYS", "task_*"))
 	if err != nil {
 		return nil, err
 	}
 
-	return keys, nil
+	strsReply, err := redis.Values(conn.Do("MGET", keysReply...))
+	if err != nil {
+		return nil, err
+	}
+
+	return strsReply, nil
 }
 
 // Returns / creates instance of Redis connection
