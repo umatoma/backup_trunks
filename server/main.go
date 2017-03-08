@@ -64,6 +64,7 @@ func main() {
 	e.Validator = NewBodyValidator()
 	e.Use(middleware.Logger())
 	e.GET("/", GetIndex)
+	e.GET("/tasks", GetTasks)
 	e.GET("/tasks/pending", GetPendingTasks)
 	e.POST("/tasks", CreateTask)
 	e.GET("/tasks/:id/report/text", GetTaskTextRepot)
