@@ -41,6 +41,7 @@ func init() {
 	cnf = config.Config{
 		Broker: *url,
 		ResultBackend: *url,
+		DefaultQueue: "machinery_tasks",
 	}
 
 	var err error
@@ -63,7 +64,7 @@ func main() {
 	e.Validator = NewBodyValidator()
 	e.Use(middleware.Logger())
 	e.GET("/", GetIndex)
-	e.GET("/tasks", GetTasks)
+	e.GET("/tasks/pending", GetPendingTasks)
 	e.POST("/tasks", CreateTask)
 	e.GET("/tasks/:id/report/text", GetTaskTextRepot)
 	e.GET("/tasks/:id/report/plot", GetTaskPlotRepot)

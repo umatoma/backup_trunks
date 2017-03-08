@@ -26,6 +26,7 @@ func init() {
 	cnf = config.Config{
 		Broker: *broker,
 		ResultBackend: *resultBackend,
+		DefaultQueue: "machinery_tasks",
 	}
 
 	var err error

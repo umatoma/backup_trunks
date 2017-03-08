@@ -1,16 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"encoding/base64"
-	"encoding/json"
 	"bytes"
 	"errors"
 
 	"github.com/umatoma/trunks/tasks"
 
-	"github.com/RichardKnop/machinery/v1/backends"
 	"github.com/labstack/echo"
 )
 
@@ -49,29 +46,15 @@ func GetIndex(c echo.Context) error {
 	return c.String(http.StatusOK, "Hello World!!")
 }
 
-// GetTasks handle GET /tasks
-func GetTasks(c echo.Context) error {
-	reply, err := redisClient.GetAllTasks()
+// GetPendingTasks handle GET /tasks/pending
+func GetPendingTasks(c echo.Context) error {
+	queue := jobQueueServer.GetConfig().DefaultQueue
+	taskSignatures, err := jobQueueServer.GetBroker().GetPendingTasks(queue)
 	if err != nil {
 		return err
 	}
 
-	taskStates := make([]*backends.TaskState, len(reply))
-	for i, value := range reply {
-		bytes, ok := value.([]byte)
-		if !ok {
-			return c.String(http.StatusBadRequest, fmt.Sprintf("Expected byte array, instead got: %v", value))
-		}
-
-		taskState := new(backends.TaskState)
-		if err := json.Unmarshal(bytes, taskState); err != nil {
-			return c.String(http.StatusInternalServerError, err.Error())
-		}
-
-		taskStates[i] = taskState
-	}
-
-	return c.JSON(http.StatusOK, taskStates)
+	return c.JSON(http.StatusOK, taskSignatures)
 }
 
 // CreateTask handle POST /tasks
