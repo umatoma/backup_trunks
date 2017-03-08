@@ -35,6 +35,10 @@ func (cli *RedisClient) GetAllTasks() ([]interface{}, error) {
 		return nil, err
 	}
 
+	if len(keysReply) == 0 {
+		return []interface{}{}, nil
+	}
+
 	strsReply, err := redis.Values(conn.Do("MGET", keysReply...))
 	if err != nil {
 		return nil, err

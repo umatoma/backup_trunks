@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"bytes"
+	"errors"
 
 	"github.com/umatoma/trunks/tasks"
 
@@ -18,6 +19,29 @@ type BodyCreateTask struct {
 	Targets []tasks.AttackTarget	`validate:"required,dive,required"`
 	Rate uint64 									`validate:"required"`
 	Duration uint64 							`validate:"required"`
+}
+
+func getTaskResultBytes(taskID string) (*[]byte, error) {
+	result, err := jobQueueServer.GetBackend().GetState(taskID)
+	if err != nil {
+		return nil, err
+	}
+
+	if !result.IsCompleted() {
+		return nil, err
+	}
+
+	encodedResult, ok := result.Result.Value.(string)
+	if !ok {
+		return nil, errors.New("result data is borken")
+	}
+
+	bytesResult, err := base64.StdEncoding.DecodeString(encodedResult)
+	if err != nil {
+		return nil, err
+	}
+
+	return &bytesResult, nil
 }
 
 // GetIndex handle GET /
@@ -75,29 +99,36 @@ func CreateTask(c echo.Context) error {
 	return c.JSON(http.StatusOK, asyncResult.Signature)
 }
 
-// GetTask handle GET /tasks/:id
+// GetTaskTextRepot handle GET /tasks/:id/report/text
+func GetTaskTextRepot(c echo.Context) error {
+	taskID := c.Param("id")
+	bytesResult, err := getTaskResultBytes(taskID)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	reporter, err := GetTextReporter(bytesResult)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	var buf bytes.Buffer
+	if err := reporter.Report(&buf); err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.HTMLBlob(http.StatusOK, buf.Bytes())
+}
+
+// GetTaskPlotRepot handle GET /tasks/:id/report/plot
 func GetTaskPlotRepot(c echo.Context) error {
 	taskID := c.Param("id")
-	result, err := jobQueueServer.GetBackend().GetState(taskID)
+	bytesResult, err := getTaskResultBytes(taskID)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
-	if !result.IsCompleted() {
-		return c.String(http.StatusInternalServerError, "Status is not completed")
-	}
-
-	encodedResult, ok := result.Result.Value.(string)
-	if !ok {
-		return c.String(http.StatusInternalServerError, "Result data is borken.")
-	}
-
-	bytesResult, err := base64.StdEncoding.DecodeString(encodedResult)
-	if err != nil {
-		return c.String(http.StatusInternalServerError, err.Error())
-	}
-
-	reporter, err := GetPlotReporter(&bytesResult)
+	reporter, err := GetPlotReporter(bytesResult)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
